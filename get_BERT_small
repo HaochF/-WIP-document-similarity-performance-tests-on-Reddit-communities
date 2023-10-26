@@ -1,0 +1,73 @@
+import read_subreddit_data
+import numpy as np
+import json
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+import praw
+
+def sorting_function(t):
+  return t[1]
+
+
+
+with open('PASSWORD.txt', 'r') as f:
+    pw = f.read()
+
+reddit = praw.Reddit(
+    client_id = 'bGx7g2Oogzhs3hq2pb2tBg',
+    client_secret = 'ZnIWmqJPZVCnCoWAxN6Ze-G0mx_IJw',
+    username = 'tester78780',
+    password = pw,
+    user_agent = "<ReplyCommentBot1.0>"
+)
+
+
+
+subreddit_descs = {}
+sum_not_in = 0
+
+distances_BERT = [['d', 1]]
+
+indi = 0
+for i in range(0, len(read_subreddit_data.SubsToProcess)):
+    indj = 0
+    indi+= 1
+    if indi%20 != 0:
+        continue
+    for j in range(i+1, len(read_subreddit_data.SubsToProcess)):
+        indj+=1
+        if indj%20 != 0:
+            continue
+        word1 = read_subreddit_data.SubsToProcess[i]
+        word2 = read_subreddit_data.SubsToProcess[j]
+
+        dist = read_subreddit_data.BERT_dissimilarity(word1, word2)
+        if dist == -1:
+            continue
+        distances_BERT.append(['' + word1 + '-' + word2, dist])
+    print(indi/len(read_subreddit_data.SubsToProcess))
+
+print('sum not in: ', sum_not_in)
+
+distances_BERT = distances_BERT[1:]
+distances_BERT.sort(key=sorting_function)
+
+BERT_connections = ['d']
+for pair in distances_BERT:
+    BERT_connections.append(pair[0])
+BERT_connections = BERT_connections[1:]
+
+with open('connections_BERT', 'w') as filehandle:
+    json.dump(BERT_connections, filehandle)
+
+
+BERT_dist = distances_BERT.copy()
+for i in range(0, len(BERT_dist)):
+    distances_BERT[i] = BERT_dist[i][1]
+mid = len(distances_BERT) // 2
+res = (distances_BERT[mid] + distances_BERT[~mid]) / 2
+print('averages distance BERT: ', res)
+
+
+with open('values_BERT', 'w') as filehandle:
+    np.savetxt(filehandle, distances_BERT)
