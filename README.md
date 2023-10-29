@@ -4,3 +4,5 @@ An ongoing research project testing document similarity algorithmns on Reddit co
 This code is mostly for demonstration purposes only, and will need work before plug-and-play utility
 In the meantime, however, one can look at read_subreddit_data.py and common_comments2_functions.py to get the general gist of the data analysis methods used
 and also testing_joint.py to see how they are tested
+
+Additionally, the program has been run on the lightweight (10,000 comments) file so that it can fit in Github's file storage
